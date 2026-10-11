@@ -9,8 +9,13 @@ import type {
   RainfallHistoryItem,
 } from "../types/prediction";
 
+const isVercel = typeof window !== "undefined" && window.location.hostname.endsWith("vercel.app");
 const rawBase = import.meta.env.VITE_API_BASE_URL;
-const API_BASE_URL = rawBase
+
+// On Vercel, use same-origin Edge Proxy ("") to bypass ISP/DNS/adblock cross-origin restrictions
+const API_BASE_URL = isVercel
+  ? ""
+  : rawBase
   ? rawBase.replace(/\/+$/, "")
   : import.meta.env.DEV
   ? "http://127.0.0.1:8000"
