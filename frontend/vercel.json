@@ -4,6 +4,14 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/health",
+      "destination": "https://urban-flood-risk-api.onrender.com/health"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://urban-flood-risk-api.onrender.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

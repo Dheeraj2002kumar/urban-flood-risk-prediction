@@ -10,39 +10,37 @@ export function App() {
   const [apiStatus, setApiStatus] = useState<"connecting" | "healthy" | "offline">("connecting");
   const [modelVersion, setModelVersion] = useState<string>("rf-v1.0-20261011");
 
+  const checkBackend = React.useCallback(async () => {
+    try {
+      const health = await getHealth();
+      if (health.status === "healthy") {
+        setApiStatus("healthy");
+        if (health.model_version) {
+          setModelVersion(health.model_version);
+        }
+        return true;
+      } else {
+        setApiStatus("offline");
+        return false;
+      }
+    } catch {
+      setApiStatus("offline");
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
-    let failCount = 0;
     let timer: ReturnType<typeof setTimeout>;
 
-    async function checkBackend() {
-      try {
-        const health = await getHealth();
-        if (health.status === "healthy") {
-          setApiStatus("healthy");
-          failCount = 0;
-          if (health.model_version) {
-            setModelVersion(health.model_version);
-          }
-          timer = setTimeout(checkBackend, 20000);
-          return;
-        }
-      } catch {
-        failCount += 1;
-        if (failCount > 3) {
-          setApiStatus("offline");
-          timer = setTimeout(checkBackend, 10000);
-          return;
-        } else {
-          setApiStatus("connecting");
-          timer = setTimeout(checkBackend, 3500);
-          return;
-        }
-      }
+    async function loop() {
+      const ok = await checkBackend();
+      // If healthy, recheck in 20s. If waking or failed, retry quickly in 3.5s!
+      timer = setTimeout(loop, ok ? 20000 : 3500);
     }
 
-    checkBackend();
+    loop();
     return () => clearTimeout(timer);
-  }, []);
+  }, [checkBackend]);
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -53,6 +51,7 @@ export function App() {
         apiStatus={apiStatus}
         isBackendHealthy={apiStatus === "healthy"}
         modelVersion={modelVersion}
+        onRefreshStatus={() => checkBackend()}
       />
 
       {/* Main Content Area */}

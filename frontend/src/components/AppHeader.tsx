@@ -7,6 +7,7 @@ interface AppHeaderProps {
   apiStatus?: "connecting" | "healthy" | "offline";
   isBackendHealthy?: boolean;
   modelVersion?: string;
+  onRefreshStatus?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -15,10 +16,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   apiStatus,
   isBackendHealthy,
   modelVersion,
+  onRefreshStatus,
 }) => {
   const status = apiStatus || (isBackendHealthy ? "healthy" : "offline");
   const statusColor = status === "healthy" ? "#10b981" : status === "connecting" ? "#4382df" : "#ef4444";
-  const statusLabel = status === "healthy" ? "API Ready" : status === "connecting" ? "Connecting API..." : "API Offline (Waking)";
+  const statusLabel = status === "healthy" ? "API Ready" : status === "connecting" ? "Connecting API..." : "API Offline (Click to Retry)";
   return (
     <header className="glass-panel" style={{ margin: "1rem", padding: "1rem 1.5rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
@@ -107,7 +109,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               borderRadius: "8px",
               border: "1px solid rgba(170, 204, 214, 0.2)",
               fontSize: "0.8rem",
+              cursor: onRefreshStatus ? "pointer" : "default",
+              transition: "all 0.2s ease",
             }}
+            onClick={onRefreshStatus}
+            title={status !== "healthy" ? "Click to retry connection to backend" : "Backend connected"}
           >
             <span
               style={{

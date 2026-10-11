@@ -9,7 +9,12 @@ import type {
   RainfallHistoryItem,
 } from "../types/prediction";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+const rawBase = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = rawBase
+  ? rawBase.replace(/\/+$/, "")
+  : import.meta.env.DEV
+  ? "http://127.0.0.1:8000"
+  : "";
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
