@@ -1,0 +1,23 @@
+{
+  "model_name": "Random_Forest",
+  "test_samples": 2440,
+  "flood_prevalence_pct": 10.901639344262296,
+  "precision": 0.6065,
+  "recall": 0.9098,
+  "f1_score": 0.7278,
+  "accuracy": 0.9258,
+  "pr_auc": 0.8878,
+  "roc_auc": 0.9765,
+  "brier_score": 0.0551,
+  "confusion_matrix": [
+    [
+      2017,
+      157
+    ],
+    [
+      24,
+      242
+    ]
+  ],
+  "confusion_matrix_plot": "ml/reports/figures/confusion_matrix_random_forest.png"
+}

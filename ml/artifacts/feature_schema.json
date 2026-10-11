@@ -1,0 +1,68 @@
+{
+  "feature_names": [
+    "rain_1h_mm",
+    "rain_24h_mm",
+    "rain_72h_mm",
+    "elevation_m",
+    "slope_deg",
+    "dist_water_m",
+    "impervious_pct",
+    "drainage_index",
+    "rain_intensity_ratio",
+    "antecedent_saturation_mm",
+    "topographic_wetness_proxy",
+    "water_proximity_factor",
+    "drainage_deficit"
+  ],
+  "required_raw_features": [
+    "rain_1h_mm",
+    "rain_24h_mm",
+    "rain_72h_mm",
+    "elevation_m",
+    "slope_deg",
+    "dist_water_m",
+    "impervious_pct",
+    "drainage_index"
+  ],
+  "engineered_features": [
+    "rain_intensity_ratio",
+    "antecedent_saturation_mm",
+    "topographic_wetness_proxy",
+    "water_proximity_factor",
+    "drainage_deficit"
+  ],
+  "feature_ranges": {
+    "rain_1h_mm": [
+      0.0,
+      250.0
+    ],
+    "rain_24h_mm": [
+      0.0,
+      750.0
+    ],
+    "rain_72h_mm": [
+      0.0,
+      1500.0
+    ],
+    "elevation_m": [
+      0.5,
+      60.0
+    ],
+    "slope_deg": [
+      0.1,
+      45.0
+    ],
+    "dist_water_m": [
+      10.0,
+      20000.0
+    ],
+    "impervious_pct": [
+      10.0,
+      99.0
+    ],
+    "drainage_index": [
+      0.05,
+      0.95
+    ]
+  }
+}

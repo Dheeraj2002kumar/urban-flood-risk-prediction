@@ -1,0 +1,111 @@
+{
+  "model_version": "rf-v1.0-20261011",
+  "algorithm": "RandomForestClassifier",
+  "pilot_region": "Mumbai Urban Metropolitan Area (Mithi River Basin & Wards)",
+  "created_at": "2026-10-11T18:50:01.413682",
+  "train_samples": 12200,
+  "test_samples": 2440,
+  "train_years": "2018-2022",
+  "held_out_test_year": 2023,
+  "features": [
+    "rain_1h_mm",
+    "rain_24h_mm",
+    "rain_72h_mm",
+    "elevation_m",
+    "slope_deg",
+    "dist_water_m",
+    "impervious_pct",
+    "drainage_index",
+    "rain_intensity_ratio",
+    "antecedent_saturation_mm",
+    "topographic_wetness_proxy",
+    "water_proximity_factor",
+    "drainage_deficit"
+  ],
+  "feature_importances": [
+    {
+      "feature": "rain_72h_mm",
+      "importance": 0.2997
+    },
+    {
+      "feature": "rain_24h_mm",
+      "importance": 0.2791
+    },
+    {
+      "feature": "rain_1h_mm",
+      "importance": 0.1746
+    },
+    {
+      "feature": "antecedent_saturation_mm",
+      "importance": 0.1217
+    },
+    {
+      "feature": "elevation_m",
+      "importance": 0.023
+    },
+    {
+      "feature": "topographic_wetness_proxy",
+      "importance": 0.0208
+    },
+    {
+      "feature": "rain_intensity_ratio",
+      "importance": 0.02
+    },
+    {
+      "feature": "drainage_deficit",
+      "importance": 0.0162
+    },
+    {
+      "feature": "drainage_index",
+      "importance": 0.015
+    },
+    {
+      "feature": "slope_deg",
+      "importance": 0.0123
+    },
+    {
+      "feature": "impervious_pct",
+      "importance": 0.0103
+    },
+    {
+      "feature": "water_proximity_factor",
+      "importance": 0.0037
+    },
+    {
+      "feature": "dist_water_m",
+      "importance": 0.0036
+    }
+  ],
+  "thresholds": {
+    "medium_risk_cutoff": 0.35,
+    "high_risk_cutoff": 0.65
+  },
+  "primary_metrics": {
+    "model_name": "Random_Forest",
+    "test_samples": 2440,
+    "flood_prevalence_pct": 10.901639344262296,
+    "precision": 0.6065,
+    "recall": 0.9098,
+    "f1_score": 0.7278,
+    "accuracy": 0.9258,
+    "pr_auc": 0.8878,
+    "roc_auc": 0.9765,
+    "brier_score": 0.0551,
+    "confusion_matrix": [
+      [
+        2017,
+        157
+      ],
+      [
+        24,
+        242
+      ]
+    ],
+    "confusion_matrix_plot": "ml/reports/figures/confusion_matrix_random_forest.png"
+  },
+  "limitations": [
+    "Educational decision-support prototype; not an official emergency early-warning system.",
+    "Valid specifically for Greater Mumbai pilot locations under monsoon meteorological regimes.",
+    "Predictions assume functioning regional pump stations and open storm nullahs."
+  ]
+}

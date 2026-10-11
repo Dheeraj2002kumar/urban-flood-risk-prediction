@@ -1,0 +1,892 @@
+{
+  "type": "FeatureCollection",
+  "name": "Mumbai_Urban_Flood_Pilot_Hotspots",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "MUM-KURLA-01",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8767,
+              19.0658
+            ],
+            [
+              72.8827,
+              19.0658
+            ],
+            [
+              72.8827,
+              19.0718
+            ],
+            [
+              72.8767,
+              19.0718
+            ],
+            [
+              72.8767,
+              19.0658
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-KURLA-01",
+        "location_name": "Kurla West (Mithi River Basin)",
+        "zone": "Eastern Suburbs",
+        "center_latitude": 19.0688,
+        "center_longitude": 72.8797,
+        "elevation_m": 3.2,
+        "slope_deg": 0.8,
+        "dist_water_m": 120.0,
+        "impervious_pct": 88.5,
+        "drainage_index": 0.25,
+        "description": "Chronic low-lying depression in Mithi river overflow corridor."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-HINDMATA-02",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8397,
+              19.0159
+            ],
+            [
+              72.8457,
+              19.0159
+            ],
+            [
+              72.8457,
+              19.0219
+            ],
+            [
+              72.8397,
+              19.0219
+            ],
+            [
+              72.8397,
+              19.0159
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-HINDMATA-02",
+        "location_name": "Hindmata, Dadar",
+        "zone": "Island City",
+        "center_latitude": 19.0189,
+        "center_longitude": 72.8427,
+        "elevation_m": 2.1,
+        "slope_deg": 0.5,
+        "dist_water_m": 850.0,
+        "impervious_pct": 92.0,
+        "drainage_index": 0.3,
+        "description": "Bowl-shaped topographical depression prone to storm runoff stagnation."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-MILAN-03",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8416,
+              19.0801
+            ],
+            [
+              72.8476,
+              19.0801
+            ],
+            [
+              72.8476,
+              19.0861
+            ],
+            [
+              72.8416,
+              19.0861
+            ],
+            [
+              72.8416,
+              19.0801
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-MILAN-03",
+        "location_name": "Milan Subway, Santacruz",
+        "zone": "Western Suburbs",
+        "center_latitude": 19.0831,
+        "center_longitude": 72.8446,
+        "elevation_m": 2.6,
+        "slope_deg": 1.2,
+        "dist_water_m": 1100.0,
+        "impervious_pct": 91.0,
+        "drainage_index": 0.32,
+        "description": "Critical underpass linking east-west transit, vulnerable to high tide runoff."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-SION-04",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8571,
+              19.0336
+            ],
+            [
+              72.8631,
+              19.0336
+            ],
+            [
+              72.8631,
+              19.0396
+            ],
+            [
+              72.8571,
+              19.0396
+            ],
+            [
+              72.8571,
+              19.0336
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-SION-04",
+        "location_name": "Sion Circle & Gandhi Market",
+        "zone": "Island City",
+        "center_latitude": 19.0366,
+        "center_longitude": 72.8601,
+        "elevation_m": 2.4,
+        "slope_deg": 0.6,
+        "dist_water_m": 620.0,
+        "impervious_pct": 87.0,
+        "drainage_index": 0.28,
+        "description": "Low-lying corridor intersecting railway culvert drainage."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-ANDHERI-05",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8434,
+              19.1167
+            ],
+            [
+              72.8494,
+              19.1167
+            ],
+            [
+              72.8494,
+              19.1227
+            ],
+            [
+              72.8434,
+              19.1227
+            ],
+            [
+              72.8434,
+              19.1167
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-ANDHERI-05",
+        "location_name": "Andheri Subway",
+        "zone": "Western Suburbs",
+        "center_latitude": 19.1197,
+        "center_longitude": 72.8464,
+        "elevation_m": 3.0,
+        "slope_deg": 1.4,
+        "dist_water_m": 1400.0,
+        "impervious_pct": 93.0,
+        "drainage_index": 0.3,
+        "description": "High-traffic railway underpass with rapid stormwater accumulation."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-DHARAVI-06",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8502,
+              19.0405
+            ],
+            [
+              72.8562,
+              19.0405
+            ],
+            [
+              72.8562,
+              19.0465
+            ],
+            [
+              72.8502,
+              19.0465
+            ],
+            [
+              72.8502,
+              19.0405
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-DHARAVI-06",
+        "location_name": "Dharavi T-Junction (Mahim Creek)",
+        "zone": "Island City / Fringe",
+        "center_latitude": 19.0435,
+        "center_longitude": 72.8532,
+        "elevation_m": 2.8,
+        "slope_deg": 0.7,
+        "dist_water_m": 240.0,
+        "impervious_pct": 86.0,
+        "drainage_index": 0.22,
+        "description": "Estuarine confluence area susceptible to tidal backflow during cloudbursts."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-BKC-07",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8653,
+              19.0632
+            ],
+            [
+              72.8713,
+              19.0632
+            ],
+            [
+              72.8713,
+              19.0692
+            ],
+            [
+              72.8653,
+              19.0692
+            ],
+            [
+              72.8653,
+              19.0632
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-BKC-07",
+        "location_name": "Bandra Kurla Complex (BKC)",
+        "zone": "Western Suburbs",
+        "center_latitude": 19.0662,
+        "center_longitude": 72.8683,
+        "elevation_m": 4.8,
+        "slope_deg": 1.1,
+        "dist_water_m": 180.0,
+        "impervious_pct": 94.0,
+        "drainage_index": 0.58,
+        "description": "Modern commercial district built on reclaimed floodplain with engineered pumps."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-CHEMBUR-08",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8964,
+              19.0492
+            ],
+            [
+              72.9024,
+              19.0492
+            ],
+            [
+              72.9024,
+              19.0552
+            ],
+            [
+              72.8964,
+              19.0552
+            ],
+            [
+              72.8964,
+              19.0492
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-CHEMBUR-08",
+        "location_name": "Chembur Shell Colony",
+        "zone": "Eastern Suburbs",
+        "center_latitude": 19.0522,
+        "center_longitude": 72.8994,
+        "elevation_m": 5.4,
+        "slope_deg": 1.3,
+        "dist_water_m": 1800.0,
+        "impervious_pct": 82.5,
+        "drainage_index": 0.42,
+        "description": "Suburban residential basin with constrained stormwater outfalls."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-WADALA-09",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8635,
+              19.0185
+            ],
+            [
+              72.8695,
+              19.0185
+            ],
+            [
+              72.8695,
+              19.0245
+            ],
+            [
+              72.8635,
+              19.0245
+            ],
+            [
+              72.8635,
+              19.0185
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-WADALA-09",
+        "location_name": "Wadala Bridge & Antop Hill Lowland",
+        "zone": "Island City",
+        "center_latitude": 19.0215,
+        "center_longitude": 72.8665,
+        "elevation_m": 3.9,
+        "slope_deg": 1.0,
+        "dist_water_m": 720.0,
+        "impervious_pct": 81.0,
+        "drainage_index": 0.36,
+        "description": "Eastern coastal fringe receiving runoff from surrounding hillocks."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-KINGSCIRCLE-10",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8524,
+              19.0268
+            ],
+            [
+              72.8584,
+              19.0268
+            ],
+            [
+              72.8584,
+              19.0328
+            ],
+            [
+              72.8524,
+              19.0328
+            ],
+            [
+              72.8524,
+              19.0268
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-KINGSCIRCLE-10",
+        "location_name": "King's Circle, Matunga",
+        "zone": "Island City",
+        "center_latitude": 19.0298,
+        "center_longitude": 72.8554,
+        "elevation_m": 2.9,
+        "slope_deg": 0.6,
+        "dist_water_m": 900.0,
+        "impervious_pct": 89.0,
+        "drainage_index": 0.31,
+        "description": "Arterial roundabout plagued by backflow during high tides."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-MALAD-11",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8458,
+              19.1835
+            ],
+            [
+              72.8518,
+              19.1835
+            ],
+            [
+              72.8518,
+              19.1895
+            ],
+            [
+              72.8458,
+              19.1895
+            ],
+            [
+              72.8458,
+              19.1835
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-MALAD-11",
+        "location_name": "Malad Subway",
+        "zone": "Western Suburbs",
+        "center_latitude": 19.1865,
+        "center_longitude": 72.8488,
+        "elevation_m": 4.1,
+        "slope_deg": 1.5,
+        "dist_water_m": 1650.0,
+        "impervious_pct": 88.0,
+        "drainage_index": 0.35,
+        "description": "North western underpass with chronic monsoon closures."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-DAHISAR-12",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.856,
+              19.249
+            ],
+            [
+              72.862,
+              19.249
+            ],
+            [
+              72.862,
+              19.255
+            ],
+            [
+              72.856,
+              19.255
+            ],
+            [
+              72.856,
+              19.249
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-DAHISAR-12",
+        "location_name": "Dahisar River Bank",
+        "zone": "Northern Suburbs",
+        "center_latitude": 19.252,
+        "center_longitude": 72.859,
+        "elevation_m": 6.8,
+        "slope_deg": 2.1,
+        "dist_water_m": 140.0,
+        "impervious_pct": 74.0,
+        "drainage_index": 0.46,
+        "description": "Riparian bank prone to flash swelling during heavy catchment rainfall."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-GHATKOPAR-13",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.912,
+              19.0782
+            ],
+            [
+              72.918,
+              19.0782
+            ],
+            [
+              72.918,
+              19.0842
+            ],
+            [
+              72.912,
+              19.0842
+            ],
+            [
+              72.912,
+              19.0782
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-GHATKOPAR-13",
+        "location_name": "Ghatkopar Pantnagar",
+        "zone": "Eastern Suburbs",
+        "center_latitude": 19.0812,
+        "center_longitude": 72.915,
+        "elevation_m": 7.2,
+        "slope_deg": 1.6,
+        "dist_water_m": 2100.0,
+        "impervious_pct": 84.0,
+        "drainage_index": 0.48,
+        "description": "Densely populated eastern suburb with moderate slope and aging drainage drains."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-BHANDUP-14",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.9342,
+              19.1498
+            ],
+            [
+              72.9402,
+              19.1498
+            ],
+            [
+              72.9402,
+              19.1558
+            ],
+            [
+              72.9342,
+              19.1558
+            ],
+            [
+              72.9342,
+              19.1498
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-BHANDUP-14",
+        "location_name": "Bhandup Sonapur (LBS Marg)",
+        "zone": "Eastern Suburbs",
+        "center_latitude": 19.1528,
+        "center_longitude": 72.9372,
+        "elevation_m": 8.5,
+        "slope_deg": 1.8,
+        "dist_water_m": 2600.0,
+        "impervious_pct": 81.0,
+        "drainage_index": 0.52,
+        "description": "Industrial and commercial corridor receiving upland western ghats runoff."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-MULUND-15",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.953,
+              19.1692
+            ],
+            [
+              72.959,
+              19.1692
+            ],
+            [
+              72.959,
+              19.1752
+            ],
+            [
+              72.953,
+              19.1752
+            ],
+            [
+              72.953,
+              19.1692
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-MULUND-15",
+        "location_name": "Mulund Check Naka Lowland",
+        "zone": "Eastern Suburbs",
+        "center_latitude": 19.1722,
+        "center_longitude": 72.956,
+        "elevation_m": 11.2,
+        "slope_deg": 2.4,
+        "dist_water_m": 3200.0,
+        "impervious_pct": 77.0,
+        "drainage_index": 0.54,
+        "description": "Boundary zone receiving hill runoff with broad stormwater nullahs."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-COLABA-16",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8228,
+              18.919
+            ],
+            [
+              72.8288,
+              18.919
+            ],
+            [
+              72.8288,
+              18.925
+            ],
+            [
+              72.8228,
+              18.925
+            ],
+            [
+              72.8228,
+              18.919
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-COLABA-16",
+        "location_name": "Colaba Marine Drive Promenade",
+        "zone": "South Mumbai",
+        "center_latitude": 18.922,
+        "center_longitude": 72.8258,
+        "elevation_m": 10.5,
+        "slope_deg": 3.2,
+        "dist_water_m": 90.0,
+        "impervious_pct": 71.0,
+        "drainage_index": 0.82,
+        "description": "South coastal promenade with effective gravity outfalls and high seawalls."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-MALABAR-17",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.7955,
+              18.9518
+            ],
+            [
+              72.8015,
+              18.9518
+            ],
+            [
+              72.8015,
+              18.9578
+            ],
+            [
+              72.7955,
+              18.9578
+            ],
+            [
+              72.7955,
+              18.9518
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-MALABAR-17",
+        "location_name": "Malabar Hill Ridge",
+        "zone": "South Mumbai",
+        "center_latitude": 18.9548,
+        "center_longitude": 72.7985,
+        "elevation_m": 46.5,
+        "slope_deg": 12.8,
+        "dist_water_m": 380.0,
+        "impervious_pct": 62.0,
+        "drainage_index": 0.89,
+        "description": "Steep rocky basalt ridge with rapid natural gravitational drainage."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-POWAI-18",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.9024,
+              19.1215
+            ],
+            [
+              72.9084,
+              19.1215
+            ],
+            [
+              72.9084,
+              19.1275
+            ],
+            [
+              72.9024,
+              19.1275
+            ],
+            [
+              72.9024,
+              19.1215
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-POWAI-18",
+        "location_name": "Powai Lake Fringe",
+        "zone": "Central Suburbs",
+        "center_latitude": 19.1245,
+        "center_longitude": 72.9054,
+        "elevation_m": 24.0,
+        "slope_deg": 5.2,
+        "dist_water_m": 220.0,
+        "impervious_pct": 66.0,
+        "drainage_index": 0.68,
+        "description": "Lake catchment zone with moderate slopes and significant green cover."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-BORIVALI-19",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8652,
+              19.2258
+            ],
+            [
+              72.8712,
+              19.2258
+            ],
+            [
+              72.8712,
+              19.2318
+            ],
+            [
+              72.8652,
+              19.2318
+            ],
+            [
+              72.8652,
+              19.2258
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-BORIVALI-19",
+        "location_name": "Borivali National Park Foothills",
+        "zone": "Northern Suburbs",
+        "center_latitude": 19.2288,
+        "center_longitude": 72.8682,
+        "elevation_m": 33.0,
+        "slope_deg": 8.7,
+        "dist_water_m": 1300.0,
+        "impervious_pct": 41.0,
+        "drainage_index": 0.8,
+        "description": "Dense forest buffer zone with permeable soil and high absorption capacity."
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "MUM-WORLI-20",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.8122,
+              19.0105
+            ],
+            [
+              72.8182,
+              19.0105
+            ],
+            [
+              72.8182,
+              19.0165
+            ],
+            [
+              72.8122,
+              19.0165
+            ],
+            [
+              72.8122,
+              19.0105
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "location_id": "MUM-WORLI-20",
+        "location_name": "Worli Sea Face Coastal Fringe",
+        "zone": "Island City",
+        "center_latitude": 19.0135,
+        "center_longitude": 72.8152,
+        "elevation_m": 8.2,
+        "slope_deg": 2.5,
+        "dist_water_m": 85.0,
+        "impervious_pct": 73.0,
+        "drainage_index": 0.76,
+        "description": "Coastal stretch equipped with major municipal tidal outfall floodgates."
+      }
+    }
+  ]
+}

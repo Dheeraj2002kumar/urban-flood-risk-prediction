@@ -1,0 +1,94 @@
+[
+  {
+    "model_name": "Dummy_Baseline",
+    "test_samples": 2440,
+    "flood_prevalence_pct": 10.901639344262296,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0.0,
+    "accuracy": 0.891,
+    "pr_auc": 0.109,
+    "roc_auc": 0.5,
+    "brier_score": 0.109,
+    "confusion_matrix": [
+      [
+        2174,
+        0
+      ],
+      [
+        266,
+        0
+      ]
+    ],
+    "confusion_matrix_plot": "ml/reports/figures/confusion_matrix_dummy_baseline.png"
+  },
+  {
+    "model_name": "Logistic_Regression",
+    "test_samples": 2440,
+    "flood_prevalence_pct": 10.901639344262296,
+    "precision": 0.5923,
+    "recall": 0.9286,
+    "f1_score": 0.7233,
+    "accuracy": 0.9225,
+    "pr_auc": 0.8989,
+    "roc_auc": 0.9782,
+    "brier_score": 0.0597,
+    "confusion_matrix": [
+      [
+        2004,
+        170
+      ],
+      [
+        19,
+        247
+      ]
+    ],
+    "confusion_matrix_plot": "ml/reports/figures/confusion_matrix_logistic_regression.png"
+  },
+  {
+    "model_name": "Random_Forest",
+    "test_samples": 2440,
+    "flood_prevalence_pct": 10.901639344262296,
+    "precision": 0.6065,
+    "recall": 0.9098,
+    "f1_score": 0.7278,
+    "accuracy": 0.9258,
+    "pr_auc": 0.8878,
+    "roc_auc": 0.9765,
+    "brier_score": 0.0551,
+    "confusion_matrix": [
+      [
+        2017,
+        157
+      ],
+      [
+        24,
+        242
+      ]
+    ],
+    "confusion_matrix_plot": "ml/reports/figures/confusion_matrix_random_forest.png"
+  },
+  {
+    "model_name": "XGBoost",
+    "test_samples": 2440,
+    "flood_prevalence_pct": 10.901639344262296,
+    "precision": 0.8594,
+    "recall": 0.8045,
+    "f1_score": 0.8311,
+    "accuracy": 0.9643,
+    "pr_auc": 0.887,
+    "roc_auc": 0.9749,
+    "brier_score": 0.031,
+    "confusion_matrix": [
+      [
+        2139,
+        35
+      ],
+      [
+        52,
+        214
+      ]
+    ],
+    "confusion_matrix_plot": "ml/reports/figures/confusion_matrix_xgboost.png"
+  }
+]

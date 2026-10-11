@@ -1,0 +1,53 @@
+data:
+  pilot_region: "Mumbai Urban Metropolitan Area (Mithi River Basin & Wards)"
+  processed_path: "data/processed/mumbai_flood_features.csv"
+  sample_path: "data/sample/mumbai_flood_sample.csv"
+  target_col: "flood_observed"
+  feature_cols:
+    - "rain_1h_mm"
+    - "rain_24h_mm"
+    - "rain_72h_mm"
+    - "elevation_m"
+    - "slope_deg"
+    - "dist_water_m"
+    - "impervious_pct"
+    - "drainage_index"
+  metadata_cols:
+    - "location_id"
+    - "location_name"
+    - "latitude"
+    - "longitude"
+    - "event_time"
+    - "season"
+    - "zone"
+
+training:
+  random_state: 42
+  split_strategy: "temporal_and_spatial"
+  test_event_year: 2023
+  cv_folds: 5
+  rf_params:
+    n_estimators: 150
+    max_depth: 8
+    min_samples_split: 5
+    min_samples_leaf: 2
+    class_weight: "balanced"
+    random_state: 42
+  xgb_params:
+    n_estimators: 120
+    max_depth: 5
+    learning_rate: 0.08
+    subsample: 0.85
+    random_state: 42
+
+thresholds:
+  medium_risk_cutoff: 0.35
+  high_risk_cutoff: 0.65
+
+paths:
+  artifact_path: "ml/artifacts/flood_risk_pipeline.joblib"
+  metadata_path: "ml/artifacts/model_metadata.json"
+  schema_path: "ml/artifacts/feature_schema.json"
+  metrics_path: "ml/reports/metrics/metrics.json"
+  comparison_path: "ml/reports/metrics/model_comparison.json"
+  figures_dir: "ml/reports/figures"
