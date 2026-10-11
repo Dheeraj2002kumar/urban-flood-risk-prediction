@@ -30,13 +30,13 @@ const TILE_CONFIGS: Record<TileSource, { url: string; attribution: string; label
   },
   topo: {
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-    attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey",
+    attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, USGS",
     label: "Topographic Terrain",
     maxZoom: 18,
   },
   satellite: {
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+    attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
     label: "Satellite Imagery",
     maxZoom: 18,
   },
@@ -109,29 +109,48 @@ export const MapView: React.FC<MapViewProps> = ({
         mapInstanceRef.current = null;
       }
     };
-  }, [activeTileSource]);
+  }, []);
 
-  // Update hotspot markers when areas or selected hotspot change
+  // Update tile layer when tile source changes
   useEffect(() => {
     const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+
+    const cfg = TILE_CONFIGS[activeTileSource];
+    const newTileLayer = L.tileLayer(cfg.url, {
+      attribution: cfg.attribution,
+      subdomains: ["a", "b", "c"],
+      maxZoom: cfg.maxZoom,
+    }).addTo(map);
+
+    tileLayerRef.current = newTileLayer;
+    tileLayerRef.current.bringToBack();
+  }, [activeTileSource]);
+
+  // Update area markers
+  useEffect(() => {
     const layer = markersLayerRef.current;
-    if (!map || !layer) return;
+    const map = mapInstanceRef.current;
+    if (!layer || !map) return;
 
     layer.clearLayers();
 
     areas.forEach((area) => {
       const isSelected = area.location_id === selectedAreaId;
 
-      // Color coding: prediction result if active, or baseline topographical vulnerability
-      let color = "#38bdf8"; // default blue
+      let color = "#10b981"; // green low
       if (isSelected && activePrediction) {
         if (activePrediction.risk_class === "high") color = "#ef4444";
         else if (activePrediction.risk_class === "medium") color = "#f59e0b";
         else color = "#10b981";
       } else {
-        if (area.elevation_m < 3.5 || area.drainage_index < 0.3) {
-          color = "#ef4444"; // high vulnerability basin
-        } else if (area.elevation_m < 8.0) {
+        if (area.elevation_m < 5.0 && area.drainage_index < 0.35) {
+          color = "#ef4444"; // vulnerable low-lying
+        } else if (area.elevation_m < 9.0) {
           color = "#f59e0b"; // moderate
         } else {
           color = "#10b981"; // well drained
@@ -141,28 +160,29 @@ export const MapView: React.FC<MapViewProps> = ({
       const marker = L.circleMarker([area.latitude, area.longitude], {
         radius: isSelected ? 13 : 8.5,
         fillColor: color,
-        color: isSelected ? "#ffffff" : "#0f172a",
+        color: isSelected ? "#ffffff" : "#070e24",
         weight: isSelected ? 3.5 : 1.5,
         opacity: 1,
         fillOpacity: isSelected ? 0.95 : 0.85,
       });
 
       marker.bindPopup(`
-        <div style="font-family: sans-serif; font-size: 12px; line-height: 1.4; min-width: 200px;">
-          <strong style="color: #0284c7; font-size: 13px;">${area.location_name}</strong>
-          <div style="color: #64748b; margin: 4px 0;">Zone: <strong>${area.zone}</strong></div>
-          <div style="margin-top: 4px; display: flex; justify-content: space-between;">
-            <span>Elev: <strong>${area.elevation_m}m</strong></span>
-            <span>Slope: <strong>${area.slope_deg}°</strong></span>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; line-height: 1.45; min-width: 210px; color: #f8fafc;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+            <strong style="color: #4382df; font-size: 13px;">${area.location_name}</strong>
+            <span style="font-size: 10px; color: #aaccd6; background: rgba(17, 46, 129, 0.5); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(67, 130, 223, 0.3);">${area.zone}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 2px;">
-            <span>Water Dist: <strong>${area.dist_water_m}m</strong></span>
-            <span>Drainage: <strong>${area.drainage_index}</strong></span>
+          <div style="margin-top: 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px; color: #aaccd6;">
+            <div>Elevation: <strong style="color: #ffffff;">${area.elevation_m}m</strong></div>
+            <div>Slope: <strong style="color: #ffffff;">${area.slope_deg}°</strong></div>
+            <div>Water Dist: <strong style="color: #ffffff;">${area.dist_water_m}m</strong></div>
+            <div>Drainage: <strong style="color: #ffffff;">${area.drainage_index}</strong></div>
           </div>
-          <div style="margin-top: 6px; font-size: 11px; color: #475569; line-height: 1.3;">${area.description}</div>
+          <div style="margin-top: 6px; font-size: 11px; color: #94a3b8; line-height: 1.3;">${area.description}</div>
           <button id="btn-select-${area.location_id}" style="
-            margin-top: 8px; width: 100%; padding: 5px 8px; background: #0284c7; color: white;
-            border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px;
+            margin-top: 10px; width: 100%; padding: 6px 10px; background: linear-gradient(135deg, #4647ae 0%, #4382df 100%);
+            color: white; border: 1px solid rgba(170, 204, 214, 0.3); border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 11px;
+            box-shadow: 0 4px 12px rgba(67, 130, 223, 0.35); transition: all 0.2s ease;
           ">Select This Station</button>
         </div>
       `);
@@ -206,16 +226,16 @@ export const MapView: React.FC<MapViewProps> = ({
         position: "relative",
         width: "100%",
         height: "460px",
-        borderRadius: "12px",
+        borderRadius: "14px",
         overflow: "hidden",
-        border: "1px solid var(--border-subtle)",
-        background: "#0a0f1d",
+        border: "1px solid var(--border-medium)",
+        background: "var(--bg-abyss)",
+        boxShadow: "inset 0 0 20px rgba(4, 8, 23, 0.8)",
       }}
       id="geospatial-map-wrapper"
     >
       <div
         ref={mapContainerRef}
-        id="leaflet-study-map"
         style={{
           width: "100%",
           height: "100%",
@@ -223,7 +243,7 @@ export const MapView: React.FC<MapViewProps> = ({
         }}
       />
 
-      {/* Map layer switcher controls */}
+      {/* Floating Map HUD & Layer Switcher */}
       <div
         style={{
           position: "absolute",
@@ -232,33 +252,36 @@ export const MapView: React.FC<MapViewProps> = ({
           zIndex: 1000,
           display: "flex",
           alignItems: "center",
-          gap: "0.4rem",
+          gap: "0.5rem",
         }}
       >
         <div
           style={{
             display: "inline-flex",
-            background: "rgba(15, 23, 42, 0.92)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "8px",
-            padding: "3px",
-            gap: "2px",
+            background: "rgba(10, 22, 58, 0.92)",
+            backdropFilter: "blur(14px)",
+            border: "1px solid var(--border-medium)",
+            borderRadius: "10px",
+            padding: "4px",
+            gap: "3px",
+            boxShadow: "0 8px 24px rgba(4, 8, 23, 0.6)",
           }}
         >
           <button
             type="button"
             onClick={() => setActiveTileSource("topo")}
             style={{
-              padding: "4px 8px",
+              padding: "5px 10px",
               fontSize: "11px",
               fontWeight: 600,
-              borderRadius: "5px",
+              fontFamily: "var(--font-display)",
+              borderRadius: "6px",
               border: "none",
               cursor: "pointer",
-              background: activeTileSource === "topo" ? "#0284c7" : "transparent",
-              color: activeTileSource === "topo" ? "#ffffff" : "#94a3b8",
-              transition: "all 0.15s ease",
+              background: activeTileSource === "topo" ? "linear-gradient(135deg, #4647ae 0%, #4382df 100%)" : "transparent",
+              color: activeTileSource === "topo" ? "#ffffff" : "#aaccd6",
+              boxShadow: activeTileSource === "topo" ? "0 2px 8px rgba(67, 130, 223, 0.45)" : "none",
+              transition: "all 0.18s ease",
             }}
           >
             Terrain
@@ -267,15 +290,17 @@ export const MapView: React.FC<MapViewProps> = ({
             type="button"
             onClick={() => setActiveTileSource("osm")}
             style={{
-              padding: "4px 8px",
+              padding: "5px 10px",
               fontSize: "11px",
               fontWeight: 600,
-              borderRadius: "5px",
+              fontFamily: "var(--font-display)",
+              borderRadius: "6px",
               border: "none",
               cursor: "pointer",
-              background: activeTileSource === "osm" ? "#0284c7" : "transparent",
-              color: activeTileSource === "osm" ? "#ffffff" : "#94a3b8",
-              transition: "all 0.15s ease",
+              background: activeTileSource === "osm" ? "linear-gradient(135deg, #4647ae 0%, #4382df 100%)" : "transparent",
+              color: activeTileSource === "osm" ? "#ffffff" : "#aaccd6",
+              boxShadow: activeTileSource === "osm" ? "0 2px 8px rgba(67, 130, 223, 0.45)" : "none",
+              transition: "all 0.18s ease",
             }}
           >
             Street (OSM)
@@ -284,15 +309,17 @@ export const MapView: React.FC<MapViewProps> = ({
             type="button"
             onClick={() => setActiveTileSource("satellite")}
             style={{
-              padding: "4px 8px",
+              padding: "5px 10px",
               fontSize: "11px",
               fontWeight: 600,
-              borderRadius: "5px",
+              fontFamily: "var(--font-display)",
+              borderRadius: "6px",
               border: "none",
               cursor: "pointer",
-              background: activeTileSource === "satellite" ? "#0284c7" : "transparent",
-              color: activeTileSource === "satellite" ? "#ffffff" : "#94a3b8",
-              transition: "all 0.15s ease",
+              background: activeTileSource === "satellite" ? "linear-gradient(135deg, #4647ae 0%, #4382df 100%)" : "transparent",
+              color: activeTileSource === "satellite" ? "#ffffff" : "#aaccd6",
+              boxShadow: activeTileSource === "satellite" ? "0 2px 8px rgba(67, 130, 223, 0.45)" : "none",
+              transition: "all 0.18s ease",
             }}
           >
             Satellite
@@ -301,16 +328,21 @@ export const MapView: React.FC<MapViewProps> = ({
 
         <div
           style={{
-            background: "rgba(15, 23, 42, 0.92)",
-            backdropFilter: "blur(8px)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "8px",
-            padding: "5px 10px",
+            background: "rgba(10, 22, 58, 0.92)",
+            backdropFilter: "blur(14px)",
+            border: "1px solid var(--border-medium)",
+            borderRadius: "10px",
+            padding: "6px 12px",
             fontSize: "11px",
             color: "var(--text-muted)",
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            boxShadow: "0 8px 24px rgba(4, 8, 23, 0.6)",
           }}
         >
-          <span style={{ color: "#38bdf8", fontWeight: 600 }}>20 Stations</span>
+          <span className="live-beacon" />
+          <span style={{ color: "#ffffff", fontWeight: 700, fontFamily: "var(--font-display)" }}>20 Stations</span>
         </div>
       </div>
     </div>

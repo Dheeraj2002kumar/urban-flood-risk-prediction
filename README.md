@@ -648,15 +648,15 @@ Build a responsive React dashboard with a clear, accessible interface.
 
 ### Application Interface Showcase
 
-| Risk Dashboard & Geospatial Map | Real-Time Prediction & Risk Factor Breakdown |
+| Risk Dashboard & Geospatial Map | Real-Time Prediction & Circular Risk Gauge |
 |:---:|:---:|
-| <img src="docs/screenshots/dashboard.png" width="100%" alt="Risk Dashboard" /> | <img src="docs/screenshots/prediction_result.png" width="100%" alt="Prediction Result" /> |
-| *Interactive GIS Leaflet Map with weather stations & scenario presets* | *Calibrated risk gauge (88.0%) & feature impact breakdown* |
+| <img src="docs/screenshots/dashboard.png" width="100%" alt="Risk Dashboard & GIS Map" /> | <img src="docs/screenshots/prediction_result.png" width="100%" alt="Prediction Result & Circular Gauge" /> |
+| *Interactive Leaflet GIS Map with floating layer HUD, monitoring stations & scenario sliders* | *Futuristic circular SVG risk gauge (88.0%), animated percentage & physical driver breakdown* |
 
 | Model Performance & Benchmark Evaluation | Data Provenance & Responsible Use |
 |:---:|:---:|
 | <img src="docs/screenshots/model_performance.png" width="100%" alt="Model Evaluation" /> | <img src="docs/screenshots/data_methodology.png" width="100%" alt="Data Methodology" /> |
-| *Held-out 2023 season test metrics, confusion matrix & Gini importance* | *Dataset catalog, feature dictionary & non-operational advisory* |
+| *Held-out 2023 season test metrics, candidate comparison table & Gini importance* | *Primary dataset catalog, physical feature definitions & non-operational advisory* |
 
 ### Page 1: Dashboard
 
@@ -870,87 +870,108 @@ Store geospatial geometries in a consistent coordinate reference system and docu
 
 ---
 
-## 21. Local Development Setup
+## 21. Local Development Setup & Installation
 
 ### Prerequisites
 
-- Python version compatible with the selected ML/geospatial packages.
-- Node.js LTS compatible with the chosen frontend dependencies.
-- Git.
-- Optional: Docker Desktop.
-- Dataset access and any required accounts or credentials.
+- **Python 3.10+** (tested on Python 3.12)
+- **Node.js 18+ & npm** (tested on Node.js 20/22)
+- **Git**
+- Optional: **Docker & Docker Compose**
+- macOS ARM note: If using native Apple Silicon and training XGBoost, install OpenMP via Homebrew: `brew install libomp`
 
-Check installed versions:
+---
+
+### Method 1: One-Click Local Quickstart (Recommended)
+
+The repository includes an automated orchestration script that verifies dependencies, creates the Python virtual environment, starts the FastAPI backend, and boots the Vite frontend:
 
 ```bash
-python3 --version
-node --version
-npm --version
-git --version
+# Clone the repository
+git clone https://github.com/Dheeraj2002kumar/urban-food-risk-prediction.git
+cd urban-food-risk-prediction
+
+# Make executable and run
+chmod +x scripts/run_local.sh
+./scripts/run_local.sh
 ```
 
-### Clone the repository
+This starts:
+- **FastAPI Backend**: `http://127.0.0.1:8000` (Docs at `http://127.0.0.1:8000/docs`)
+- **React Frontend**: `http://127.0.0.1:5173`
+
+---
+
+### Method 2: Docker Compose (Zero Configuration)
+
+To run the entire system inside isolated production-ready containers:
 
 ```bash
-git clone https://github.com/<your-username>/urban-flood-risk-prediction.git
-cd urban-flood-risk-prediction
+docker compose up --build
 ```
 
-Replace `<your-username>` with your GitHub username after creating the repository.
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8000`
+- To stop the services: `docker compose down`
 
-### Set up the ML environment
+---
 
-From the project root:
+### Method 3: Step-by-Step Manual Setup
+
+#### Step 1: Clone the Repository & Configure Environment
 
 ```bash
+git clone https://github.com/Dheeraj2002kumar/urban-food-risk-prediction.git
+cd urban-food-risk-prediction
+
+# Copy environment variable templates
+cp .env.example .env
+cp frontend/.env.example frontend/.env
+```
+
+#### Step 2: Python Environment & Machine Learning Pipeline
+
+```bash
+# Create and activate virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
+source .venv/bin/activate       # On Windows: .venv\Scripts\Activate.ps1
+
+# Upgrade pip and install dependencies
+pip install --upgrade pip
 pip install -r ml/requirements.txt
+pip install -r backend/requirements.txt
+
+# (Optional) Retrain and evaluate the models on held-out 2023 season
+python scripts/validate_data.py
+python ml/src/features/build_features.py
+python ml/src/models/train.py
 ```
 
-On Windows PowerShell, activate with:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Create `ml/requirements.txt` with compatible, tested versions of the libraries actually used, such as:
-
-```text
-pandas
-numpy
-scikit-learn
-xgboost
-geopandas
-shapely
-joblib
-matplotlib
-seaborn
-jupyter
-pytest
-```
-
-This is a starter dependency list, not a fully pinned production lock file. Some geospatial dependencies can require platform-specific setup.
-
-### Set up the backend
+#### Step 3: Run the Automated Unit Test Suite
 
 ```bash
-pip install -r backend/requirements.txt
-uvicorn app.main:app --reload --app-dir backend
+pytest ml/tests backend/tests -v
+```
+*(All 10 unit tests should pass: feature transformations, preprocessing, health checks, and prediction endpoints).*
+
+#### Step 4: Start the FastAPI Backend Server
+
+```bash
+# On macOS ARM, export OpenMP library path if needed:
+export DYLD_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib
+
+# Start Uvicorn
+PYTHONPATH=. uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Expected development URL after the service starts:
+Verify backend health:
+```bash
+curl http://127.0.0.1:8000/health
+```
 
-- API: `http://127.0.0.1:8000`
-- Interactive API docs: `http://127.0.0.1:8000/docs`
-- Health endpoint: `http://127.0.0.1:8000/health`
+#### Step 5: Start the React + Vite Frontend
 
-The backend code and model artifact must be implemented before prediction requests will work.
-
-### Set up the frontend
-
-Open another terminal:
+In a second terminal window:
 
 ```bash
 cd frontend
@@ -958,17 +979,20 @@ npm install
 npm run dev
 ```
 
-Create `frontend/.env.example` with a variable such as:
+Navigate to `http://localhost:5173` in your web browser.
 
-```text
-VITE_API_BASE_URL=http://127.0.0.1:8000
-```
+---
 
-Copy the example to `.env.local` and update it for your environment. Frontend variables prefixed with `VITE_` are exposed to the browser; never place secrets in them.
+### Available Services & Documentation Endpoints
 
-### Environment configuration
-
-Create `.env.example` files containing placeholder variable names only. Do not commit real API keys, passwords, or production credentials.
+| Service / Asset | URL / File Path | Description |
+|---|---|---|
+| **Web GIS Dashboard** | `http://localhost:5173` | Interactive Leaflet map, scenario sliders, circular risk gauge |
+| **FastAPI Interactive Docs** | `http://localhost:8000/docs` | Swagger UI for exploring and testing API endpoints |
+| **API Health Check** | `http://localhost:8000/health` | Service status, model version, and pipeline readiness |
+| **System Technical Guide** | [`docs.md`](docs.md) | 387-line comprehensive architecture and data documentation |
+| **Lean Canvas Presentation** | [`lean-canvas.pptx`](lean-canvas.pptx) / [`.ppt`](lean-canvas.ppt) | 10-slide 16:9 business model and SDG pitch presentation |
+| **Formal Concept Note** | [`concept-note.pdf`](concept-note.pdf) / [`.md`](concept-note.md) | 6-page publication-grade project proposal document |
 
 ---
 

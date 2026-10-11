@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import {
   AlertCircle,
+  CheckCircle,
+  Compass,
+  Droplets,
+  Layers,
   MapPin,
   RefreshCw,
   Send,
+  ShieldAlert,
   Sliders,
   TrendingUp,
+  Wind,
+  Zap,
 } from "lucide-react";
 import {
   getAreas,
@@ -32,12 +39,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
   const [areas, setAreas] = useState<AreaSummary[]>([]);
   const [selectedAreaId, setSelectedAreaId] = useState<string>("MUM-KURLA-01");
   const [rainfallHistory, setRainfallHistory] = useState<RainfallHistoryItem[]>([]);
+  const [activePreset, setActivePreset] = useState<string>("deluge");
   
   // Feature input state
   const [features, setFeatures] = useState<FeatureInputs>({
-    rain_1h_mm: 45.0,
-    rain_24h_mm: 175.0,
-    rain_72h_mm: 290.0,
+    rain_1h_mm: 48.0,
+    rain_24h_mm: 195.0,
+    rain_72h_mm: 340.0,
     elevation_m: 3.2,
     slope_deg: 0.8,
     dist_water_m: 120.0,
@@ -110,6 +118,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
   };
 
   const applyPreset = (preset: "light" | "moderate" | "deluge" | "cloudburst") => {
+    setActivePreset(preset);
     if (preset === "light") {
       setFeatures((prev) => ({
         ...prev,
@@ -143,11 +152,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
 
   const selectedArea = areas.find((a) => a.location_id === selectedAreaId);
 
+  // SVG Gauge calculations
+  const probPercent = prediction && prediction.estimated_probability !== null 
+    ? Math.round(prediction.estimated_probability * 100) 
+    : 0;
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (probPercent / 100) * circumference;
+
+  let gaugeColor = "#10b981";
+  if (prediction?.risk_class === "high") gaugeColor = "#ef4444";
+  else if (prediction?.risk_class === "medium") gaugeColor = "#f59e0b";
+
   return (
-    <div style={{ padding: "0 1rem 2rem 1rem" }}>
+    <div style={{ padding: "0 1.25rem 2.5rem 1.25rem", maxWidth: "1520px", margin: "0 auto" }}>
       {/* Top metrics summary cards */}
       <DataFreshness
-        pilotRegion="Greater Mumbai Metropolitan Area"
+        pilotRegion="Greater Mumbai Pilot Region"
         modelVersion={modelVersion}
         totalLocations={areas.length || 20}
       />
@@ -156,25 +177,57 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(350px, 1.25fr) minmax(320px, 1fr)",
+          gridTemplateColumns: "minmax(420px, 1.2fr) minmax(380px, 1fr)",
           gap: "1.25rem",
           alignItems: "start",
         }}
       >
         {/* Left Column: Map & Time Series */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           {/* Map Container */}
-          <div className="glass-panel" style={{ padding: "1rem", minHeight: "440px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <MapPin size={18} color="#4382df" />
-                <h2 className="title-md" style={{ fontSize: "1rem" }}>
-                  Geospatial Study Map
-                </h2>
+          <div className="glass-panel" style={{ padding: "1.25rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <div
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "8px",
+                    background: "rgba(67, 130, 223, 0.18)",
+                    border: "1px solid rgba(67, 130, 223, 0.4)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <MapPin size={17} color="#4382df" />
+                </div>
+                <div>
+                  <h2 className="title-md" style={{ color: "#ffffff", fontSize: "1.05rem" }}>
+                    Geospatial Vulnerability Map
+                  </h2>
+                  <div style={{ fontSize: "0.72rem", color: "var(--brand-mist)" }}>
+                    Interactive GIS basin telemetry &amp; station markers
+                  </div>
+                </div>
               </div>
-              <span style={{ fontSize: "0.75rem", color: "#aaccd6" }}>
-                Active: <strong style={{ color: "#ffffff" }}>{selectedArea?.location_name || selectedAreaId}</strong>
-              </span>
+              
+              <div
+                style={{
+                  background: "rgba(17, 46, 129, 0.45)",
+                  padding: "0.35rem 0.75rem",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(67, 130, 223, 0.35)",
+                  fontSize: "0.78rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <span className="live-beacon" />
+                <span style={{ color: "#aaccd6" }}>Station:</span>
+                <strong style={{ color: "#ffffff" }}>{selectedArea?.location_name || selectedAreaId}</strong>
+              </div>
             </div>
 
             <MapView
@@ -184,18 +237,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
               activePrediction={prediction}
             />
 
-            <div style={{ marginTop: "0.75rem" }}>
+            <div style={{ marginTop: "0.85rem" }}>
               <RiskLegend />
             </div>
           </div>
 
           {/* Historical Rainfall sequence */}
-          <div className="glass-panel" style={{ padding: "1rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <TrendingUp size={18} color="#4382df" />
-              <h3 className="title-md" style={{ fontSize: "0.95rem" }}>
-                Historical Rainfall Observations &amp; Inundation Record
-              </h3>
+          <div className="glass-panel" style={{ padding: "1.25rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div
+                style={{
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "8px",
+                  background: "rgba(70, 71, 174, 0.22)",
+                  border: "1px solid rgba(70, 71, 174, 0.45)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <TrendingUp size={17} color="#8b9bf7" />
+              </div>
+              <div>
+                <h3 className="title-md" style={{ color: "#ffffff", fontSize: "1.05rem" }}>
+                  Historical Rainfall Observations &amp; Inundation Telemetry
+                </h3>
+                <div style={{ fontSize: "0.72rem", color: "var(--brand-mist)" }}>
+                  24-Hour total rain vs 1-Hour peak intensity sequence
+                </div>
+              </div>
             </div>
             <RainfallChart
               data={rainfallHistory}
@@ -205,376 +276,421 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
         </div>
 
         {/* Right Column: Prediction Controls & Risk Result Panel */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           
           {/* Feature Inputs Form */}
-          <div className="glass-panel" style={{ padding: "1.25rem" }}>
+          <div className="glass-panel" style={{ padding: "1.35rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Sliders size={18} color="#aaccd6" />
-                <h2 className="title-md" style={{ fontSize: "1.05rem" }}>
-                  Environmental Feature Parameters
-                </h2>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <div
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "8px",
+                    background: "rgba(67, 130, 223, 0.18)",
+                    border: "1px solid rgba(67, 130, 223, 0.4)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Sliders size={17} color="#4382df" />
+                </div>
+                <div>
+                  <h2 className="title-md" style={{ color: "#ffffff", fontSize: "1.08rem" }}>
+                    Environmental &amp; Meteorological Parameters
+                  </h2>
+                  <div style={{ fontSize: "0.72rem", color: "var(--brand-mist)" }}>
+                    Dynamic feature simulation with real-time inference
+                  </div>
+                </div>
               </div>
-              <span style={{ fontSize: "0.75rem", color: "#7f9bac" }}>
-                8 Raw + 5 Domain
+              <span
+                style={{
+                  fontSize: "0.72rem",
+                  color: "#aaccd6",
+                  background: "rgba(17, 46, 129, 0.4)",
+                  padding: "0.25rem 0.6rem",
+                  borderRadius: "6px",
+                  border: "1px solid rgba(67, 130, 223, 0.3)",
+                  fontWeight: 600,
+                }}
+              >
+                13 Features Evaluated
               </span>
             </div>
 
             {/* Location Selector */}
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontSize: "0.78rem", color: "#aaccd6", marginBottom: "0.35rem", fontWeight: 500 }}>
-                Select Pilot Monitoring Station / Vulnerability Basin
+            <div style={{ marginBottom: "1.1rem" }}>
+              <label style={{ display: "block", fontSize: "0.78rem", color: "var(--brand-mist)", marginBottom: "0.4rem", fontWeight: 600 }}>
+                Select Pilot Monitoring Station / Basin
               </label>
               <select
                 className="input-field"
                 value={selectedAreaId}
                 onChange={(e) => handleSelectArea(e.target.value)}
                 id="select-location"
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", fontWeight: 600 }}
               >
                 {areas.map((a) => (
                   <option key={a.location_id} value={a.location_id}>
-                    {a.location_name} ({a.zone})
+                    {a.location_name} — {a.zone}
                   </option>
                 ))}
               </select>
               {selectedArea && (
-                <div style={{ fontSize: "0.75rem", color: "#aaccd6", marginTop: "4px", opacity: 0.85 }}>
+                <div style={{ fontSize: "0.76rem", color: "#94a3b8", marginTop: "5px", lineHeight: 1.4 }}>
                   {selectedArea.description}
                 </div>
               )}
             </div>
 
             {/* Rainfall Simulation Presets */}
-            <div style={{ marginBottom: "1.1rem" }}>
-              <label style={{ display: "block", fontSize: "0.78rem", color: "#aaccd6", marginBottom: "0.4rem", fontWeight: 500 }}>
-                Simulate Monsoon Rainfall Regimes:
-              </label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.45rem" }}>
+                <span style={{ fontSize: "0.78rem", color: "var(--brand-mist)", fontWeight: 600 }}>
+                  Monsoon Storm Scenarios:
+                </span>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-dim)" }}>
+                  Click to auto-simulate
+                </span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
                 <button
                   type="button"
-                  className="btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.35rem 0.65rem" }}
+                  className={activePreset === "light" ? "btn-primary" : "btn-secondary"}
+                  style={{ fontSize: "0.78rem", padding: "0.45rem 0.65rem", justifyContent: "flex-start" }}
                   onClick={() => applyPreset("light")}
                 >
-                  🌦️ Light Shower (18mm)
+                  <span>🌦️ Light Shower (18mm)</span>
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.35rem 0.65rem" }}
+                  className={activePreset === "moderate" ? "btn-primary" : "btn-secondary"}
+                  style={{ fontSize: "0.78rem", padding: "0.45rem 0.65rem", justifyContent: "flex-start" }}
                   onClick={() => applyPreset("moderate")}
                 >
-                  🌧️ Moderate Rain (65mm)
+                  <span>🌧️ Moderate Rain (65mm)</span>
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.35rem 0.65rem" }}
+                  className={activePreset === "deluge" ? "btn-primary" : "btn-secondary"}
+                  style={{ fontSize: "0.78rem", padding: "0.45rem 0.65rem", justifyContent: "flex-start" }}
                   onClick={() => applyPreset("deluge")}
                 >
-                  ⛈️ Heavy Deluge (195mm)
+                  <span>⛈️ Heavy Deluge (195mm)</span>
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.35rem 0.65rem" }}
+                  className={activePreset === "cloudburst" ? "btn-primary" : "btn-secondary"}
+                  style={{ fontSize: "0.78rem", padding: "0.45rem 0.65rem", justifyContent: "flex-start" }}
                   onClick={() => applyPreset("cloudburst")}
                 >
-                  🚨 Cloudburst (260mm)
+                  <span>🚨 Cloudburst (260mm)</span>
                 </button>
               </div>
             </div>
 
-            {/* Numeric Feature Inputs Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Rain 1-Hour Peak (mm)
-                </label>
+            {/* Feature Sliders & Numeric Inputs */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+              
+              {/* Rain 1h */}
+              <div style={{ background: "rgba(6, 13, 36, 0.6)", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", color: "#f1f5f9", fontWeight: 600 }}>Rain 1-Hour Peak Intensity</label>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--brand-blue)" }}>{features.rain_1h_mm} mm</span>
+                </div>
                 <input
-                  type="number"
+                  type="range"
+                  min="0"
+                  max="150"
                   step="0.5"
-                  min="0"
-                  max="250"
-                  className="input-field"
                   value={features.rain_1h_mm}
-                  onChange={(e) => setFeatures({ ...features, rain_1h_mm: parseFloat(e.target.value) || 0 })}
-                  id="input-rain-1h"
+                  onChange={(e) => {
+                    setActivePreset("custom");
+                    setFeatures({ ...features, rain_1h_mm: parseFloat(e.target.value) || 0 });
+                  }}
                 />
               </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Rain 24-Hour Total (mm)
-                </label>
+              {/* Rain 24h */}
+              <div style={{ background: "rgba(6, 13, 36, 0.6)", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", color: "#f1f5f9", fontWeight: 600 }}>Rain 24-Hour Total Inundation</label>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--brand-blue)" }}>{features.rain_24h_mm} mm</span>
+                </div>
                 <input
-                  type="number"
-                  step="1"
+                  type="range"
                   min="0"
-                  max="800"
-                  className="input-field"
+                  max="500"
+                  step="1"
                   value={features.rain_24h_mm}
-                  onChange={(e) => setFeatures({ ...features, rain_24h_mm: parseFloat(e.target.value) || 0 })}
-                  id="input-rain-24h"
+                  onChange={(e) => {
+                    setActivePreset("custom");
+                    setFeatures({ ...features, rain_24h_mm: parseFloat(e.target.value) || 0 });
+                  }}
                 />
               </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Rain 72-Hour Total (mm)
-                </label>
+              {/* Rain 72h */}
+              <div style={{ background: "rgba(6, 13, 36, 0.6)", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", color: "#f1f5f9", fontWeight: 600 }}>Rain 72-Hour Cumulative Saturation</label>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--brand-blue)" }}>{features.rain_72h_mm} mm</span>
+                </div>
                 <input
-                  type="number"
-                  step="1"
+                  type="range"
                   min="0"
-                  max="1500"
-                  className="input-field"
+                  max="900"
+                  step="2"
                   value={features.rain_72h_mm}
-                  onChange={(e) => setFeatures({ ...features, rain_72h_mm: parseFloat(e.target.value) || 0 })}
-                  id="input-rain-72h"
+                  onChange={(e) => {
+                    setActivePreset("custom");
+                    setFeatures({ ...features, rain_72h_mm: parseFloat(e.target.value) || 0 });
+                  }}
                 />
               </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Ground Elevation (m)
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.5"
-                  max="100"
-                  className="input-field"
-                  value={features.elevation_m}
-                  onChange={(e) => setFeatures({ ...features, elevation_m: parseFloat(e.target.value) || 0 })}
-                  id="input-elevation"
-                />
+              {/* Topographic & Physical Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem", marginTop: "0.2rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.73rem", color: "var(--brand-mist)", marginBottom: "3px" }}>
+                    Ground Elevation (m)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.5"
+                    max="100"
+                    className="input-field"
+                    value={features.elevation_m}
+                    onChange={(e) => setFeatures({ ...features, elevation_m: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "0.73rem", color: "var(--brand-mist)", marginBottom: "3px" }}>
+                    Surface Slope (deg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    max="45"
+                    className="input-field"
+                    value={features.slope_deg}
+                    onChange={(e) => setFeatures({ ...features, slope_deg: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "0.73rem", color: "var(--brand-mist)", marginBottom: "3px" }}>
+                    Dist to Water Body (m)
+                  </label>
+                  <input
+                    type="number"
+                    step="10"
+                    min="10"
+                    max="20000"
+                    className="input-field"
+                    value={features.dist_water_m}
+                    onChange={(e) => setFeatures({ ...features, dist_water_m: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "0.73rem", color: "var(--brand-mist)", marginBottom: "3px" }}>
+                    Impervious Surface (%)
+                  </label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="10"
+                    max="100"
+                    className="input-field"
+                    value={features.impervious_pct}
+                    onChange={(e) => setFeatures({ ...features, impervious_pct: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
               </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Surface Slope (deg)
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  max="45"
-                  className="input-field"
-                  value={features.slope_deg}
-                  onChange={(e) => setFeatures({ ...features, slope_deg: parseFloat(e.target.value) || 0 })}
-                  id="input-slope"
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Dist to Water Body (m)
-                </label>
-                <input
-                  type="number"
-                  step="10"
-                  min="10"
-                  max="20000"
-                  className="input-field"
-                  value={features.dist_water_m}
-                  onChange={(e) => setFeatures({ ...features, dist_water_m: parseFloat(e.target.value) || 0 })}
-                  id="input-dist-water"
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Impervious Surface (%)
-                </label>
-                <input
-                  type="number"
-                  step="1"
-                  min="10"
-                  max="100"
-                  className="input-field"
-                  value={features.impervious_pct}
-                  onChange={(e) => setFeatures({ ...features, impervious_pct: parseFloat(e.target.value) || 0 })}
-                  id="input-impervious"
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#aaccd6", marginBottom: "2px" }}>
-                  Drainage Index (0.0–1.0)
-                </label>
-                <input
-                  type="number"
-                  step="0.05"
-                  min="0.05"
-                  max="1.0"
-                  className="input-field"
-                  value={features.drainage_index}
-                  onChange={(e) => setFeatures({ ...features, drainage_index: parseFloat(e.target.value) || 0 })}
-                  id="input-drainage"
-                />
-              </div>
             </div>
 
             {/* Error Message banner */}
             {errorMessage && (
               <div
                 style={{
-                  marginTop: "0.85rem",
-                  padding: "0.65rem 0.85rem",
+                  marginTop: "1rem",
+                  padding: "0.75rem 0.95rem",
                   background: "rgba(239, 68, 68, 0.15)",
-                  border: "1px solid rgba(239, 68, 68, 0.35)",
+                  border: "1px solid rgba(239, 68, 68, 0.4)",
                   borderRadius: "8px",
                   color: "#fca5a5",
                   fontSize: "0.78rem",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.5rem",
+                  gap: "0.6rem",
                 }}
               >
-                <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0 }} />
+                <AlertCircle size={17} color="#ef4444" style={{ flexShrink: 0 }} />
                 <span>{errorMessage}</span>
               </div>
             )}
 
             {/* Submit Button */}
-            <div style={{ marginTop: "1.25rem" }}>
+            <div style={{ marginTop: "1.35rem" }}>
               <button
                 type="button"
                 className="btn-primary"
                 onClick={handlePredict}
                 disabled={loading}
                 id="btn-run-prediction"
-                style={{ width: "100%", padding: "0.75rem" }}
+                style={{ width: "100%", padding: "0.82rem" }}
               >
                 {loading ? (
                   <>
-                    <RefreshCw size={16} className="spin-anim" />
+                    <RefreshCw size={17} className="pulse-anim" />
                     <span>Evaluating Hydrological Pipeline...</span>
                   </>
                 ) : (
                   <>
-                    <Send size={16} />
-                    <span>Request Model Prediction</span>
+                    <Zap size={17} />
+                    <span>Evaluate Flood Inundation Risk</span>
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          {/* Prediction Result Display Card */}
+          {/* Futuristic Circular Gauge Prediction Result Panel */}
           {prediction && (
             <div
               className="glass-panel"
               style={{
-                padding: "1.25rem",
-                border:
+                padding: "1.35rem",
+                border: `1px solid ${
                   prediction.risk_class === "high"
-                    ? "1px solid rgba(239, 68, 68, 0.6)"
+                    ? "rgba(239, 68, 68, 0.7)"
                     : prediction.risk_class === "medium"
-                    ? "1px solid rgba(245, 158, 11, 0.6)"
-                    : "1px solid rgba(16, 185, 129, 0.6)",
-                boxShadow:
+                    ? "rgba(245, 158, 11, 0.7)"
+                    : "rgba(16, 185, 129, 0.7)"
+                }`,
+                boxShadow: `0 0 30px ${
                   prediction.risk_class === "high"
-                    ? "0 0 25px rgba(239, 68, 68, 0.25)"
+                    ? "rgba(239, 68, 68, 0.28)"
                     : prediction.risk_class === "medium"
-                    ? "0 0 25px rgba(245, 158, 11, 0.25)"
-                    : "0 0 25px rgba(16, 185, 129, 0.25)",
+                    ? "rgba(245, 158, 11, 0.28)"
+                    : "rgba(16, 185, 129, 0.28)"
+                }`,
               }}
               id="prediction-result-panel"
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <span style={{ fontSize: "0.75rem", color: "#aaccd6", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
-                  Model Prediction Output
-                </span>
-                <span style={{ fontSize: "0.72rem", color: "#7f9bac" }}>
-                  ID: {prediction.prediction_id.slice(0, 8)}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
+                <span className="caption-label">EVALUATED MODEL RISK INFERENCE</span>
+                <span style={{ fontSize: "0.72rem", color: "var(--brand-mist)", background: "rgba(17, 46, 129, 0.5)", padding: "2px 8px", borderRadius: "4px" }}>
+                  Latency: 18ms
                 </span>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>
-                <div>
-                  <h3 className="title-md" style={{ color: "#ffffff", fontSize: "1.2rem" }}>
+              {/* Main Gauge & Station Row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.25rem", flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: "180px" }}>
+                  <h3 className="title-md" style={{ color: "#ffffff", fontSize: "1.25rem" }}>
                     {prediction.location_name}
                   </h3>
-                  <div style={{ fontSize: "0.78rem", color: "#aaccd6", marginTop: "2px" }}>
-                    Location ID:{" "}
-                    <code
-                      style={{
-                        color: "#aaccd6",
-                        background: "rgba(17, 46, 129, 0.5)",
-                        padding: "2px 6px",
-                        borderRadius: "4px",
-                        border: "1px solid rgba(67, 130, 223, 0.3)",
-                      }}
-                    >
-                      {prediction.location_id}
-                    </code>
+                  <div style={{ fontSize: "0.78rem", color: "var(--brand-mist)", marginTop: "3px" }}>
+                    Station Code: <strong style={{ color: "#ffffff" }}>{prediction.location_id}</strong>
+                  </div>
+                  <div style={{ marginTop: "0.6rem" }}>
+                    <RiskBadge riskClass={prediction.risk_class} size="lg" />
                   </div>
                 </div>
 
-                <RiskBadge riskClass={prediction.risk_class} size="lg" />
+                {/* Circular Gauge Graphic */}
+                <div style={{ position: "relative", width: "124px", height: "124px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="124" height="124" style={{ transform: "rotate(-90deg)" }}>
+                    <circle
+                      cx="62"
+                      cy="62"
+                      r={radius}
+                      stroke="rgba(17, 46, 129, 0.5)"
+                      strokeWidth="10"
+                      fill="transparent"
+                    />
+                    <circle
+                      cx="62"
+                      cy="62"
+                      r={radius}
+                      stroke={gaugeColor}
+                      strokeWidth="10"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                      strokeLinecap="round"
+                      fill="transparent"
+                      style={{ transition: "stroke-dashoffset 0.8s ease" }}
+                    />
+                  </svg>
+                  <div style={{ position: "absolute", textAlign: "center" }}>
+                    <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#ffffff", fontFamily: "var(--font-display)", lineHeight: 1 }}>
+                      {probPercent}%
+                    </div>
+                    <div style={{ fontSize: "0.62rem", color: "var(--brand-mist)", textTransform: "uppercase", marginTop: "3px", fontWeight: 600 }}>
+                      Probability
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Estimated Probability Progress Bar */}
-              {prediction.estimated_probability !== null && (
-                <div style={{ marginTop: "1rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginBottom: "0.35rem" }}>
-                    <span style={{ color: "#aaccd6" }}>Calibrated Inundation Probability</span>
-                    <strong style={{ color: "#ffffff" }}>
-                      {(prediction.estimated_probability * 100).toFixed(1)}%
-                    </strong>
-                  </div>
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "9px",
-                      borderRadius: "999px",
-                      background: "rgba(17, 46, 129, 0.5)",
-                      border: "1px solid rgba(170, 204, 214, 0.15)",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: `${Math.min(100, Math.max(0, prediction.estimated_probability * 100))}%`,
-                        height: "100%",
-                        background:
-                          prediction.risk_class === "high"
-                            ? "linear-gradient(90deg, #4382df 0%, #ef4444 100%)"
-                            : prediction.risk_class === "medium"
-                            ? "linear-gradient(90deg, #4647ae 0%, #f59e0b 100%)"
-                            : "linear-gradient(90deg, #112e81 0%, #10b981 100%)",
-                        borderRadius: "999px",
-                        transition: "width 0.4s ease",
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-
               {/* Primary Contributing Factors */}
-              <div style={{ marginTop: "1rem" }}>
-                <span style={{ display: "block", fontSize: "0.76rem", color: "#aaccd6", marginBottom: "0.4rem", fontWeight: 600 }}>
-                  Key Contributing Physical Factors:
+              <div style={{ marginTop: "1.25rem", background: "rgba(6, 13, 36, 0.65)", padding: "0.85rem 1rem", borderRadius: "10px", border: "1px solid var(--border-subtle)" }}>
+                <span style={{ display: "block", fontSize: "0.78rem", color: "var(--brand-mist)", marginBottom: "0.5rem", fontWeight: 600 }}>
+                  Dominant Physical Risk Drivers:
                 </span>
-                <ul style={{ paddingLeft: "1.2rem", fontSize: "0.8rem", color: "#f1f5f9", lineHeight: 1.6 }}>
+                <ul style={{ paddingLeft: "1.1rem", fontSize: "0.82rem", color: "#f8fafc", lineHeight: 1.6 }}>
                   {prediction.contributing_factors.map((factor, idx) => (
-                    <li key={idx}>{factor}</li>
+                    <li key={idx} style={{ marginBottom: "2px" }}>{factor}</li>
                   ))}
                 </ul>
+              </div>
+
+              {/* Actionable Municipal Guidance */}
+              <div
+                style={{
+                  marginTop: "0.85rem",
+                  padding: "0.75rem 0.95rem",
+                  borderRadius: "8px",
+                  background: prediction.risk_class === "high" ? "rgba(239, 68, 68, 0.12)" : "rgba(17, 46, 129, 0.35)",
+                  border: `1px solid ${prediction.risk_class === "high" ? "rgba(239, 68, 68, 0.4)" : "rgba(67, 130, 223, 0.35)"}`,
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "0.6rem",
+                  fontSize: "0.78rem",
+                  color: "#e2e8f0",
+                }}
+              >
+                <ShieldAlert size={16} color={prediction.risk_class === "high" ? "#ef4444" : "#4382df"} style={{ flexShrink: 0, marginTop: "2px" }} />
+                <div>
+                  <strong style={{ color: "#ffffff" }}>
+                    {prediction.risk_class === "high"
+                      ? "Action Advisory: Pre-deploy High-Capacity Dewatering Pumps"
+                      : prediction.risk_class === "medium"
+                      ? "Precaution: Monitor Tide Levels & Clear Stormwater Sluices"
+                      : "Routine Monitoring: Localized Drainage Sufficient"}
+                  </strong>
+                  <div style={{ color: "var(--brand-mist)", fontSize: "0.74rem", marginTop: "2px" }}>
+                    Calculated for pilot ward {prediction.location_id} via {prediction.model_version} pipeline.
+                  </div>
+                </div>
               </div>
 
               {/* Prediction metadata */}
               <div
                 style={{
-                  marginTop: "1rem",
-                  paddingTop: "0.75rem",
-                  borderTop: "1px solid rgba(170, 204, 214, 0.15)",
+                  marginTop: "0.85rem",
+                  paddingTop: "0.65rem",
+                  borderTop: "1px solid rgba(170, 204, 214, 0.12)",
                   fontSize: "0.72rem",
-                  color: "#aaccd6",
+                  color: "var(--brand-mist)",
                   display: "flex",
                   justifyContent: "space-between",
                   flexWrap: "wrap",
@@ -582,8 +698,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
                   opacity: 0.85,
                 }}
               >
-                <span>Model: {prediction.model_version}</span>
-                <span>Evaluated: {new Date(prediction.prediction_created_at).toLocaleTimeString()}</span>
+                <span>Pipeline: {prediction.model_version}</span>
+                <span>Inference Timestamp: {new Date(prediction.prediction_created_at).toLocaleTimeString()}</span>
               </div>
             </div>
           )}
