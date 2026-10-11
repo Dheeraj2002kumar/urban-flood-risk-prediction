@@ -7,25 +7,41 @@ import { ModelPerformance } from "./pages/ModelPerformance";
 
 export function App() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "performance" | "methodology">("dashboard");
-  const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(false);
-  const [modelVersion, setModelVersion] = useState<string>("rf-v1.0");
+  const [apiStatus, setApiStatus] = useState<"connecting" | "healthy" | "offline">("connecting");
+  const [modelVersion, setModelVersion] = useState<string>("rf-v1.0-20261011");
 
   useEffect(() => {
+    let failCount = 0;
+    let timer: ReturnType<typeof setTimeout>;
+
     async function checkBackend() {
       try {
         const health = await getHealth();
-        setIsBackendHealthy(health.status === "healthy");
-        if (health.model_version) {
-          setModelVersion(health.model_version);
+        if (health.status === "healthy") {
+          setApiStatus("healthy");
+          failCount = 0;
+          if (health.model_version) {
+            setModelVersion(health.model_version);
+          }
+          timer = setTimeout(checkBackend, 20000);
+          return;
         }
       } catch {
-        setIsBackendHealthy(false);
+        failCount += 1;
+        if (failCount > 3) {
+          setApiStatus("offline");
+          timer = setTimeout(checkBackend, 10000);
+          return;
+        } else {
+          setApiStatus("connecting");
+          timer = setTimeout(checkBackend, 3500);
+          return;
+        }
       }
     }
 
     checkBackend();
-    const interval = setInterval(checkBackend, 15000);
-    return () => clearInterval(interval);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -34,7 +50,8 @@ export function App() {
       <AppHeader
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        isBackendHealthy={isBackendHealthy}
+        apiStatus={apiStatus}
+        isBackendHealthy={apiStatus === "healthy"}
         modelVersion={modelVersion}
       />
 

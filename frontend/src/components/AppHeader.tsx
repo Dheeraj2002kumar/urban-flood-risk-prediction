@@ -4,16 +4,21 @@ import { Activity, AlertTriangle, BarChart3, Database, Layers } from "lucide-rea
 interface AppHeaderProps {
   activeTab: "dashboard" | "performance" | "methodology";
   setActiveTab: (tab: "dashboard" | "performance" | "methodology") => void;
-  isBackendHealthy: boolean;
+  apiStatus?: "connecting" | "healthy" | "offline";
+  isBackendHealthy?: boolean;
   modelVersion?: string;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   activeTab,
   setActiveTab,
+  apiStatus,
   isBackendHealthy,
   modelVersion,
 }) => {
+  const status = apiStatus || (isBackendHealthy ? "healthy" : "offline");
+  const statusColor = status === "healthy" ? "#10b981" : status === "connecting" ? "#4382df" : "#ef4444";
+  const statusLabel = status === "healthy" ? "API Ready" : status === "connecting" ? "Connecting API..." : "API Offline (Waking)";
   return (
     <header className="glass-panel" style={{ margin: "1rem", padding: "1rem 1.5rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
@@ -109,12 +114,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                background: isBackendHealthy ? "#10b981" : "#ef4444",
-                boxShadow: isBackendHealthy ? "0 0 8px #10b981" : "0 0 8px #ef4444",
+                background: statusColor,
+                boxShadow: `0 0 8px ${statusColor}`,
               }}
+              className={status === "connecting" ? "live-beacon" : ""}
             />
-            <span style={{ color: isBackendHealthy ? "#aaccd6" : "#fca5a5", fontWeight: 500 }}>
-              {isBackendHealthy ? "API Ready" : "API Offline"}
+            <span style={{ color: statusColor, fontWeight: 600 }}>
+              {statusLabel}
             </span>
             {modelVersion && (
               <span style={{ color: "var(--text-dim)", marginLeft: "0.25rem", borderLeft: "1px solid rgba(170, 204, 214, 0.25)", paddingLeft: "0.5rem" }}>
