@@ -1113,30 +1113,41 @@ Given a supported location and a complete, valid feature record, the dashboard s
 
 ---
 
-## 25. Deployment Plan
+## 25. Deployment Plan (Vercel + Render)
 
-### Simple deployment
+The system is architected for seamless separation of concerns between static edge frontend distribution and containerized Python API inference:
 
-- Frontend: static hosting that supports a React/Vite build.
-- Backend: Python hosting that supports FastAPI.
-- Model artifact: securely packaged with the backend or retrieved from controlled artifact storage.
-- Database: optional managed PostgreSQL/PostGIS instance.
+### Architecture
 
-### Production checklist
+- **Frontend (Vercel)**: Hosted on Vercel's global Edge Network for sub-second page loads. Automated deployments via GitHub push and pre-configured SPA routing ([`vercel.json`](vercel.json) / [`frontend/vercel.json`](frontend/vercel.json)).
+- **Backend (Render)**: Hosted as a Render Web Service utilizing [`backend/Dockerfile`](backend/Dockerfile) and automated via Blueprint ([`render.yaml`](render.yaml)).
+- Detailed walkthrough: [`docs/deployment.md`](docs/deployment.md).
 
-- [ ] Use pinned dependencies.
-- [ ] Set production environment variables securely.
-- [ ] Configure frontend API URL.
-- [ ] Restrict CORS to approved origins.
-- [ ] Add a health check.
-- [ ] Verify model artifact loading at startup.
-- [ ] Test a valid prediction after deployment.
-- [ ] Check API timeouts, logs, and resource limits.
-- [ ] Confirm dataset and map attribution.
-- [ ] Add a visible disclaimer and data-freshness information.
-- [ ] Document model version and last evaluation date.
+### Quick Deployment Steps
 
-Docker Compose can be added to run the frontend, backend, and optional database locally. Do not include real secrets in the Compose file or commit a populated `.env`.
+1. **Push to GitHub**:
+   ```bash
+   git add .
+   git commit -m "feat: deploy to vercel and render"
+   git push origin master
+   ```
+2. **Deploy Backend to Render**:
+   - In [Render Dashboard](https://dashboard.render.com/), select **New +** $\rightarrow$ **Blueprint** and connect this repository.
+   - Render automatically deploys `urban-flood-risk-api` using [`render.yaml`](render.yaml).
+   - Copy your assigned URL: `https://urban-flood-risk-api.onrender.com`.
+3. **Deploy Frontend to Vercel**:
+   - In [Vercel Dashboard](https://vercel.com/), select **Add New...** $\rightarrow$ **Project** and import this repository.
+   - Set **Framework Preset** to `Vite` and **Root Directory** to `frontend`.
+   - Add environment variable: `VITE_API_BASE_URL` = `https://urban-flood-risk-api.onrender.com`.
+   - Click **Deploy**.
+
+### Production Checklist
+
+- [x] Dockerfile pre-compiled with OpenMP (`libomp-dev`) for XGBoost.
+- [x] CORS pre-configured to allow Vercel edge domains.
+- [x] Health check endpoint `/health` active for Render keep-alive pings.
+- [x] Single-page application rewrites configured in `vercel.json`.
+- [x] Non-operational advisory disclaimer permanently visible.
 
 ---
 
