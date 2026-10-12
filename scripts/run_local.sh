@@ -19,6 +19,12 @@ if [ ! -f "ml/artifacts/flood_risk_pipeline.joblib" ]; then
     DYLD_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib PYTHONPATH=. .venv/bin/python ml/src/models/train.py
 fi
 
+# Free ports 8000 and 5173 if previously occupied
+echo "Checking and freeing ports 8000 and 5173..."
+kill -9 $(lsof -t -i:8000) 2>/dev/null || true
+kill -9 $(lsof -t -i:5173) 2>/dev/null || true
+sleep 0.5
+
 # Start backend in background
 echo "Starting FastAPI backend on http://127.0.0.1:8000..."
 DYLD_LIBRARY_PATH=/opt/homebrew/opt/libomp/lib PYTHONPATH=. .venv/bin/uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 &
