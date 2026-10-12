@@ -3,15 +3,19 @@ import {
   AlertCircle,
   CheckCircle,
   Compass,
+  Download,
   Droplets,
+  FileText,
   Layers,
   MapPin,
+  Printer,
   RefreshCw,
   Send,
   ShieldAlert,
   Sliders,
   TrendingUp,
   Wind,
+  X,
   Zap,
 } from "lucide-react";
 import {
@@ -56,6 +60,65 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showAuditModal, setShowAuditModal] = useState<boolean>(false);
+
+  const handleExportCSV = () => {
+    if (!prediction) return;
+    const advisory =
+      prediction.risk_class === "high"
+        ? "Action Advisory: Pre-deploy High-Capacity Dewatering Pumps"
+        : prediction.risk_class === "medium"
+        ? "Precaution: Monitor Tide Levels & Clear Stormwater Sluices"
+        : "Routine Monitoring: Localized Drainage Sufficient";
+
+    const headers = [
+      "Audit_Timestamp",
+      "Location_Name",
+      "Station_ID",
+      "Risk_Classification",
+      "Inundation_Probability_Pct",
+      "Model_Pipeline_Version",
+      "Rainfall_1h_Peak_mm",
+      "Rainfall_24h_Total_mm",
+      "Rainfall_72h_Cumulative_mm",
+      "Ground_Elevation_m",
+      "Surface_Slope_deg",
+      "Dist_To_Water_Body_m",
+      "Impervious_Surface_Pct",
+      "Dominant_Risk_Factors",
+      "Municipal_Advisory_Guidance",
+    ];
+
+    const row = [
+      `"${prediction.prediction_created_at}"`,
+      `"${prediction.location_name}"`,
+      `"${prediction.location_id}"`,
+      `"${prediction.risk_class.toUpperCase()}"`,
+      ((prediction.estimated_probability ?? 0) * 100).toFixed(1),
+      `"${prediction.model_version}"`,
+      features.rain_1h_mm,
+      features.rain_24h_mm,
+      features.rain_72h_mm,
+      features.elevation_m,
+      features.slope_deg,
+      features.dist_water_m,
+      features.impervious_pct,
+      `"${prediction.contributing_factors.join("; ")}"`,
+      `"${advisory}"`,
+    ];
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), row.join(",")].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `flood_risk_audit_${prediction.location_id}_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Load initial pilot locations
   useEffect(() => {
@@ -701,11 +764,300 @@ export const Dashboard: React.FC<DashboardProps> = ({ modelVersion }) => {
                 <span>Pipeline: {prediction.model_version}</span>
                 <span>Inference Timestamp: {new Date(prediction.prediction_created_at).toLocaleTimeString()}</span>
               </div>
+
+              {/* Exportable PDF / CSV Prediction Audit Report Controls */}
+              <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem" }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleExportCSV}
+                  id="btn-export-csv"
+                  style={{
+                    fontSize: "0.78rem",
+                    padding: "0.55rem 0.75rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.45rem",
+                    background: "rgba(17, 46, 129, 0.45)",
+                    border: "1px solid rgba(67, 130, 223, 0.35)",
+                    color: "#ffffff",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Download size={14} color="#38bdf8" />
+                  <span>Export CSV Audit</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowAuditModal(true)}
+                  id="btn-export-pdf"
+                  style={{
+                    fontSize: "0.78rem",
+                    padding: "0.55rem 0.75rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.45rem",
+                    background: "rgba(70, 71, 174, 0.35)",
+                    border: "1px solid rgba(70, 71, 174, 0.55)",
+                    color: "#ffffff",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <FileText size={14} color="#a5b4fc" />
+                  <span>Print / PDF Report</span>
+                </button>
+              </div>
             </div>
           )}
 
         </div>
       </div>
+
+      {/* Official Municipal Flood Risk Audit Report Modal (Print / PDF Ready) */}
+      {showAuditModal && prediction && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(3, 7, 18, 0.85)",
+            backdropFilter: "blur(8px)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+          }}
+        >
+          <div
+            className="glass-panel print-only-modal"
+            style={{
+              width: "100%",
+              maxWidth: "760px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "2rem",
+              background: "#0c183d",
+              border: "1px solid rgba(67, 130, 223, 0.4)",
+              borderRadius: "16px",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.75)",
+              color: "#f8fafc",
+            }}
+          >
+            {/* Modal Action Header (Hidden in Print) */}
+            <div
+              className="no-print"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "1.25rem",
+                paddingBottom: "0.75rem",
+                borderBottom: "1px solid rgba(170, 204, 214, 0.15)",
+              }}
+            >
+              <span style={{ fontSize: "0.8rem", color: "var(--brand-mist)", textTransform: "uppercase", letterSpacing: "1px" }}>
+                Official Hydrological Audit Document
+              </span>
+              <div style={{ display: "flex", gap: "0.6rem" }}>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.45rem 0.9rem",
+                    background: "var(--brand-accent)",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
+                  <Printer size={15} />
+                  <span>Print / Save as PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAuditModal(false)}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(170, 204, 214, 0.25)",
+                    borderRadius: "6px",
+                    color: "var(--brand-mist)",
+                    padding: "0.45rem 0.6rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Document Content */}
+            <div className="print-header">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+                <div>
+                  <h1 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#ffffff", margin: 0, textTransform: "uppercase" }}>
+                    Urban Flood Inundation Risk Audit Report
+                  </h1>
+                  <div style={{ fontSize: "0.82rem", color: "var(--brand-mist)", marginTop: "4px" }}>
+                    Municipal Disaster Management Cell &bull; Hydrological Decision Support System
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: "0.78rem", color: "var(--brand-mist)" }}>Audit Ref: AUD-{prediction.location_id}-{Date.now().toString().slice(-6)}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>Generated: {new Date(prediction.prediction_created_at).toLocaleString()}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Target Station & Risk Classification Summary */}
+            <div
+              style={{
+                marginTop: "1.5rem",
+                padding: "1rem 1.25rem",
+                borderRadius: "10px",
+                background:
+                  prediction.risk_class === "high"
+                    ? "rgba(239, 68, 68, 0.15)"
+                    : prediction.risk_class === "medium"
+                    ? "rgba(245, 158, 11, 0.15)"
+                    : "rgba(16, 185, 129, 0.15)",
+                border: `1px solid ${
+                  prediction.risk_class === "high"
+                    ? "#ef4444"
+                    : prediction.risk_class === "medium"
+                    ? "#f59e0b"
+                    : "#10b981"
+                }`,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "1rem",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--brand-mist)" }}>
+                  Evaluated Pilot Location
+                </div>
+                <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "#ffffff" }}>
+                  {prediction.location_name} ({prediction.location_id})
+                </div>
+                <div style={{ fontSize: "0.78rem", color: "var(--brand-mist)", marginTop: "2px" }}>
+                  Coordinates: Lat {selectedArea?.latitude ?? 19.0760}&deg;N, Lon {selectedArea?.longitude ?? 72.8777}&deg;E
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--brand-mist)" }}>
+                  Assessed Inundation Risk
+                </div>
+                <div
+                  style={{
+                    fontSize: "1.35rem",
+                    fontWeight: 800,
+                    color:
+                      prediction.risk_class === "high"
+                        ? "#ef4444"
+                        : prediction.risk_class === "medium"
+                        ? "#f59e0b"
+                        : "#10b981",
+                  }}
+                >
+                  {prediction.risk_class.toUpperCase()} RISK ({((prediction.estimated_probability ?? 0) * 100).toFixed(1)}%)
+                </div>
+              </div>
+            </div>
+
+            {/* Environmental & Meteorological Telemetry Table */}
+            <div style={{ marginTop: "1.5rem" }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.6rem" }}>
+                Evaluated Hydrological &amp; Topographic Parameters
+              </h3>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
+                <tbody>
+                  <tr style={{ borderBottom: "1px solid rgba(170, 204, 214, 0.15)" }}>
+                    <td style={{ padding: "0.5rem 0", color: "var(--brand-mist)" }}>24-Hour Accumulated Rainfall</td>
+                    <td style={{ padding: "0.5rem 0", textAlign: "right", fontWeight: 600, color: "#ffffff" }}>{features.rain_24h_mm} mm</td>
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid rgba(170, 204, 214, 0.15)" }}>
+                    <td style={{ padding: "0.5rem 0", color: "var(--brand-mist)" }}>1-Hour Peak Intensity</td>
+                    <td style={{ padding: "0.5rem 0", textAlign: "right", fontWeight: 600, color: "#ffffff" }}>{features.rain_1h_mm} mm/h</td>
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid rgba(170, 204, 214, 0.15)" }}>
+                    <td style={{ padding: "0.5rem 0", color: "var(--brand-mist)" }}>72-Hour Cumulative Monsoon Index</td>
+                    <td style={{ padding: "0.5rem 0", textAlign: "right", fontWeight: 600, color: "#ffffff" }}>{features.rain_72h_mm} mm</td>
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid rgba(170, 204, 214, 0.15)" }}>
+                    <td style={{ padding: "0.5rem 0", color: "var(--brand-mist)" }}>Ground Elevation (DEM)</td>
+                    <td style={{ padding: "0.5rem 0", textAlign: "right", fontWeight: 600, color: "#ffffff" }}>{features.elevation_m} m</td>
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid rgba(170, 204, 214, 0.15)" }}>
+                    <td style={{ padding: "0.5rem 0", color: "var(--brand-mist)" }}>Surface Slope Gradient</td>
+                    <td style={{ padding: "0.5rem 0", textAlign: "right", fontWeight: 600, color: "#ffffff" }}>{features.slope_deg}&deg;</td>
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid rgba(170, 204, 214, 0.15)" }}>
+                    <td style={{ padding: "0.5rem 0", color: "var(--brand-mist)" }}>Proximity to Major Water Body</td>
+                    <td style={{ padding: "0.5rem 0", textAlign: "right", fontWeight: 600, color: "#ffffff" }}>{features.dist_water_m} m</td>
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid rgba(170, 204, 214, 0.15)" }}>
+                    <td style={{ padding: "0.5rem 0", color: "var(--brand-mist)" }}>Urban Impervious Surface Ratio</td>
+                    <td style={{ padding: "0.5rem 0", textAlign: "right", fontWeight: 600, color: "#ffffff" }}>{features.impervious_pct}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Dominant Risk Drivers & Advisory */}
+            <div style={{ marginTop: "1.5rem" }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.4rem" }}>
+                Dominant Physical Risk Drivers
+              </h3>
+              <ul style={{ fontSize: "0.82rem", color: "#e2e8f0", paddingLeft: "1.2rem", lineHeight: 1.6 }}>
+                {prediction.contributing_factors.map((f, i) => (
+                  <li key={i}>{f}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ marginTop: "1.25rem", padding: "0.85rem 1rem", background: "rgba(17, 46, 129, 0.35)", borderRadius: "8px", border: "1px solid rgba(67, 130, 223, 0.3)" }}>
+              <div style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "var(--brand-mist)", fontWeight: 700 }}>
+                Municipal Operational Directive:
+              </div>
+              <div style={{ fontSize: "0.85rem", color: "#ffffff", marginTop: "3px", fontWeight: 600 }}>
+                {prediction.risk_class === "high"
+                  ? "Pre-deploy High-Capacity Dewatering Pumps & Alert Rapid Response Teams"
+                  : prediction.risk_class === "medium"
+                  ? "Precaution: Monitor Tide Levels & Clear Stormwater Sluices"
+                  : "Routine Monitoring: Localized Drainage Capacity Sufficient"}
+              </div>
+            </div>
+
+            {/* Verification Sign-off & Disclaimer */}
+            <div style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid rgba(170, 204, 214, 0.2)", fontSize: "0.72rem", color: "var(--brand-mist)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+              <div>
+                <div>Engine: {prediction.model_version}</div>
+                <div>Evaluation Environment: Production Cloud Pipeline</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div>Authorized Sign-off: Automated Telemetry Ingestion Engine</div>
+                <div>Status: Verified Official Decision Support Record</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

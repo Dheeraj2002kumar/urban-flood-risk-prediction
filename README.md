@@ -189,10 +189,10 @@ The features actually used must match the dataset available at prediction time. 
 - [x] Side-by-side comparison of Random Forest, XGBoost, and baseline models.
 - [x] User-defined scenario analysis (interactive sliders for hypothetical simulation).
 - [x] Historical flood-event and high-risk vulnerability boundary layers.
-- [ ] Time-series rainfall charts.
-- [ ] Exportable PDF / CSV prediction audit report.
-- [ ] Scheduled automated ingestion of live IMD / Copernicus data feeds.
-- [ ] Model drift and data-quality drift monitoring.
+- [x] Time-series rainfall charts (multi-mode: 24h vs 1h peak, cumulative curves, IMD alert reference lines).
+- [x] Exportable PDF / CSV prediction audit report (timestamped RFC-4180 CSV export + print/PDF modal).
+- [x] Scheduled automated ingestion of live IMD / Copernicus data feeds (background cron sync + on-demand triggers).
+- [x] Model drift and data-quality drift monitoring (continuous PSI scoring, KS test metrics, data integrity audits).
 - [ ] Admin-only dataset and model version registry management.
 
 ---

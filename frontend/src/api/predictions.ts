@@ -1,6 +1,8 @@
 import type {
   AreaSummary,
+  DriftReportResponse,
   HealthStatus,
+  IngestionStatusResponse,
   ModelComparisonItem,
   ModelInfo,
   ModelMetrics,
@@ -85,3 +87,17 @@ export async function getModelMetrics(): Promise<ModelMetrics> {
 export async function getModelComparison(): Promise<ModelComparisonItem[]> {
   return request<ModelComparisonItem[]>("/api/v1/metrics/comparison");
 }
+
+export async function getIngestionStatus(): Promise<IngestionStatusResponse> {
+  return request<IngestionStatusResponse>("/api/v1/ingestion/status");
+}
+
+export async function triggerIngestionSync(feedId?: string): Promise<any> {
+  const url = feedId ? `/api/v1/ingestion/trigger?feed_id=${encodeURIComponent(feedId)}` : "/api/v1/ingestion/trigger";
+  return request<any>(url, { method: "POST" });
+}
+
+export async function getDriftReport(): Promise<DriftReportResponse> {
+  return request<DriftReportResponse>("/api/v1/drift/report");
+}
+

@@ -5,7 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.app.api.areas import router as areas_router
+from backend.app.api.drift import router as drift_router
 from backend.app.api.health import router as health_router
+from backend.app.api.ingestion import router as ingestion_router
 from backend.app.api.metrics import router as metrics_router
 from backend.app.api.predictions import router as predictions_router
 from backend.app.core.config import settings
@@ -80,6 +82,8 @@ app.include_router(health_router)
 app.include_router(predictions_router, prefix=settings.API_PREFIX)
 app.include_router(metrics_router, prefix=settings.API_PREFIX)
 app.include_router(areas_router, prefix=settings.API_PREFIX)
+app.include_router(ingestion_router, prefix=settings.API_PREFIX)
+app.include_router(drift_router, prefix=settings.API_PREFIX)
 
 if __name__ == "__main__":
     import uvicorn

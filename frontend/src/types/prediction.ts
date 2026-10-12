@@ -104,3 +104,74 @@ export interface HealthStatus {
   model_version?: string;
   environment: string;
 }
+
+export interface IngestionFeed {
+  id: string;
+  name: string;
+  provider: string;
+  schedule_cron: string;
+  interval_minutes: number;
+  status: string;
+  last_sync: string;
+  next_sync: string;
+  records_ingested_last_batch: number;
+  data_types: string[];
+  coverage: string;
+}
+
+export interface IngestionStatusResponse {
+  status: string;
+  scheduler_running: boolean;
+  engine: string;
+  total_feeds: number;
+  total_records_ingested_24h: number;
+  feeds: IngestionFeed[];
+  system_time_utc: string;
+}
+
+export interface FeatureDriftItem {
+  feature: string;
+  display_name: string;
+  psi_score: number;
+  ks_statistic: number;
+  p_value: number;
+  status: string;
+  drift_detected: boolean;
+  threshold: number;
+  baseline_mean: number;
+  current_mean: number;
+}
+
+export interface DataQualityAudit {
+  missing_value_pct: number;
+  null_records_detected: number;
+  schema_anomalies: number;
+  outlier_rate_pct: number;
+  integrity_score_pct: number;
+  status: string;
+  last_audited: string;
+}
+
+export interface DriftReportResponse {
+  status: string;
+  drift_overall_status: string;
+  monitoring_window_days: number;
+  evaluation_metric: string;
+  feature_drift: FeatureDriftItem[];
+  model_prediction_drift: {
+    target: string;
+    psi_score: number;
+    ks_statistic: number;
+    p_value: number;
+    drift_detected: boolean;
+    status: string;
+    baseline_high_risk_share_pct: number;
+    current_high_risk_share_pct: number;
+    recommendation: string;
+  };
+  data_quality: DataQualityAudit;
+  total_features_tracked: number;
+  drifted_features_count: number;
+  system_time_utc: string;
+}
+
